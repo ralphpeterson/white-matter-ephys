@@ -102,7 +102,7 @@ def preprocess(bin_files, lowcut=200, highcut=6000):
         data = np.fromfile(file, dtype='int16').reshape((64, -1), order='F')
 
         print('Bandpassing')
-        data_filt = wp.butter_bandpass_filter(data, lowcut, highcut, sr_phys, axis=1)
+        data_filt = butter_bandpass_filter(data, lowcut, highcut, sr_phys, axis=1)
 
         print('Computing common reference')
         cmr = np.median(data_filt, axis=0) #common median reference
