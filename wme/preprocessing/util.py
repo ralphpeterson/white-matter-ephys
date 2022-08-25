@@ -84,7 +84,7 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
     sos = butter(order, [low, high], analog=False, btype='band', output='sos')
     return sos
 
-def butter_bandpass_filter(data, lowcut, highcut, fs, order=5, axis=0):
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5, axis=1):
     """
     From https://scipy-cookbook.readthedocs.io/items/ButterworthBandpass.html
     """
@@ -198,8 +198,8 @@ def check_spikes(bin_file, phys_bandpass=(200,6000), n_waveforms=200):
     sr, data = load_wm(bin_file)
 
     #bandpass
-    print('Bandpassing between {}={} Hz'.format(phys_bandpass[0], phys_bandpass[1]))
-    data_filt = butter_bandpass_filter(data, phys_bandpass[0], phys_bandpass[1], sr)
+    print('Bandpassing between {}-{} Hz'.format(phys_bandpass[0], phys_bandpass[1]))
+    data_filt = butter_bandpass_filter(data, phys_bandpass[0], phys_bandpass[1], sr, axis=1)
     
     #subtract off reference
     print('Computing and subtracting off common reference')
