@@ -47,10 +47,10 @@ def get_spikes(data_phys, threshold = 5):
 	"""
 	spikes = [] 
 
-	for channel in range(data_phys.shape[1]):
+	for channel in range(data_phys.shape[0]):
 		
 		#index data from a single channels
-		signal = data_phys[:, channel]
+		signal = data_phys[channel, :]
 
 		#compute
 		thresh = np.mean(signal)-(np.std(signal)*threshold)

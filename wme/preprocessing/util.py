@@ -161,6 +161,7 @@ def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
     Function to save PNGs of spike waveforms detected on different channels.
     """
     for ich in range(data_phys.shape[0]):
+        
         plt.figure()
         all_traces = []
         for ispike in range(1, len(spikes[ich])-1)[:n_waveforms]:
@@ -169,11 +170,12 @@ def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
             working_trace = data_phys[ich, working_start:working_stop]
             all_traces.append(working_trace)
             plt.plot(working_trace, 'gray', alpha=0.25)
+        
         plt.plot(np.mean(np.array(all_traces), axis=0), 'k')
         plt.ylabel('microvolts')
         plt.xlabel('Time (ms)')
-        plt.xticks(np.arange(0, len(working_trace), len(working_trace)/6),
-            np.around(np.arange(0, len(working_trace), len(working_trace)/6)/sr*1000, decimals=1))
+        plt.xticks(np.arange(0, sr*.001*2, sr*.001*2/6),
+         np.around(np.arange(0, sr*.001*2, sr*.001*2/6)/sr*1000, decimals=1))
         plt.title('Thresholded spike detected on ch {}'.format(ich))
         sns.despine()
         plt.tight_layout()
