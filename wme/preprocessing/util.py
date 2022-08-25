@@ -211,4 +211,4 @@ def check_spikes(bin_file, phys_bandpass=(200,6000), n_waveforms=200):
 
     #save spikes
     print('Saving spike waveforms')
-    save_spikes(data_phys, sr, spikes, n_waveforms=n_waveforms, bin_file)
+    save_spikes(data_phys, sr, spikes, n_waveforms=n_waveforms, bin_file=bin_file)
