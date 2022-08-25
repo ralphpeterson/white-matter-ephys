@@ -3,7 +3,9 @@ import numpy as np
 from scipy.signal import butter, sosfilt, sosfreqz
 import shutil
 import io
-
+from wme.util import load_wm, get_spikes
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def chunk_bin(filename, chunk_size, channel_map): 
     
@@ -69,7 +71,6 @@ def chunk_bin(filename, chunk_size, channel_map):
     
     print('Done')
 
-
 def butter_bandpass(lowcut, highcut, fs, order=5):
     """
     From https://scipy-cookbook.readthedocs.io/items/ButterworthBandpass.html
@@ -82,7 +83,6 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
     high = highcut / nyq
     sos = butter(order, [low, high], analog=False, btype='band', output='sos')
     return sos
-
 
 def butter_bandpass_filter(data, lowcut, highcut, fs, order=5, axis=0):
     """
@@ -115,7 +115,6 @@ def preprocess(bin_files, lowcut=200, highcut=6000):
         print()
     print('Done')
 
-
 def merge_bins(bin_files, outfile):
 
     """
@@ -135,3 +134,81 @@ def merge_bins(bin_files, outfile):
             with open(file,'rb') as f:
                 shutil.copyfileobj(f, dest, length=io.DEFAULT_BUFFER_SIZE)
     print('Merge file saved to: {}'.format(outfile))
+
+def cmr(data_phys_bandpassed):
+    """
+    Compute the common median reference for an n_channel x n_sample array of ephys data.
+    
+    Returns:
+        Common reference for all channels.
+    """
+    
+    cmr = np.median(data_phys_bandpassed, axis=0)
+    
+    return cmr
+
+def reference(data_phys_bandpassed):
+    """
+    Subtract off the common reference (common median reference) from your bandpasses data.
+    """
+    reference = cmr(data_phys_bandpassed)
+    data_phys = data_phys_bandpassed - reference.reshape((1, -1))
+
+    return data_phys
+
+def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
+    """
+    Function to save PNGs of spike waveforms detected on different channels.
+    """
+    for ich in range(data_phys.shape[0]):
+        plt.figure()
+        all_traces = []
+        for ispike in range(1, len(spikes[ich])-1)[:n_waveforms]:
+            working_start = int(spikes[ich][ispike] - sr*.001)
+            working_stop = int(spikes[ich][ispike] + sr*.001)
+            working_trace = data_phys[ich, working_start:working_stop]
+            all_traces.append(working_trace)
+            plt.plot(working_trace, 'gray', alpha=0.25)
+        plt.plot(np.mean(np.array(all_traces), axis=0), 'k')
+        plt.ylabel('microvolts')
+        plt.xlabel('Time (ms)')
+        plt.xticks(np.arange(0, len(working_trace), len(working_trace)/6),
+            np.around(np.arange(0, len(working_trace), len(working_trace)/6)/sr*1000, decimals=1))
+        plt.title('Thresholded spike detected on ch {}'.format(ich))
+        sns.despine()
+        plt.tight_layout()
+        
+        dirname, basename = os.path.split(bin_file)
+        outdir = os.path.join(dirname, 'spike_waveforms')
+        
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+
+        outfile = os.path.join(outdir, 'channel_{}'.format(ich))
+        plt.savefig(outfile)
+        plt.close()
+
+def check_spikes(bin_file, phys_bandpass=(200,6000) n_waveforms=200):
+    """
+    A function to grab thresholded spikes on each channel and overlay spike waveforms to check for signal.
+    """
+
+    #load raw data
+    print('Loading data')
+    sr, data = load_wm(bin_file)
+
+    #bandpass
+    print('Bandpassing between {}={} Hz'.format(phys_bandpass[0], phys_bandpass[1]))
+    data_filt = butter_bandpass_filter(data, phys_bandpass[0], phys_bandpass[1], sr)
+    
+    #subtract off reference
+    print('Computing and subtracting off common reference')
+    data_phys = reference(data_filt)
+
+    #get spikes
+    print('Getting spikes')
+    spikes = get_spikes(data_phys, threshold=5)
+
+    #save spikes
+    print('Saving spike waveforms')
+    save_spikes(data_phys, sr, spikes, n_waveforms=n_waveforms, bin_file)
