@@ -1,4 +1,5 @@
 data
+.DS_Store
 
 #boiler plate from https://github.com/github/gitignore/blob/main/Python.gitignore
 __pycache__/
