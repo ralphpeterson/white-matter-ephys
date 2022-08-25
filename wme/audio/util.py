@@ -2,6 +2,7 @@ import os
 from glob import glob
 from scipy.io import wavfile
 from wme.nidaq.util import get_wm_trigger
+import h5py
 
 
 def h5_to_wav(dirname,  sr_audio=125000, mic_number=1):

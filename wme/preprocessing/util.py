@@ -84,7 +84,7 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
     sos = butter(order, [low, high], analog=False, btype='band', output='sos')
     return sos
 
-def butter_bandpass_filter(data, lowcut, highcut, fs, order=5, axis=0):
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5, axis=1):
     """
     From https://scipy-cookbook.readthedocs.io/items/ButterworthBandpass.html
     """
@@ -161,6 +161,7 @@ def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
     Function to save PNGs of spike waveforms detected on different channels.
     """
     for ich in range(data_phys.shape[0]):
+        
         plt.figure()
         all_traces = []
         for ispike in range(1, len(spikes[ich])-1)[:n_waveforms]:
@@ -169,11 +170,12 @@ def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
             working_trace = data_phys[ich, working_start:working_stop]
             all_traces.append(working_trace)
             plt.plot(working_trace, 'gray', alpha=0.25)
+        
         plt.plot(np.mean(np.array(all_traces), axis=0), 'k')
         plt.ylabel('microvolts')
         plt.xlabel('Time (ms)')
-        plt.xticks(np.arange(0, len(working_trace), len(working_trace)/6),
-            np.around(np.arange(0, len(working_trace), len(working_trace)/6)/sr*1000, decimals=1))
+        plt.xticks(np.arange(0, sr*.001*2, sr*.001*2/6),
+         np.around(np.arange(0, sr*.001*2, sr*.001*2/6)/sr*1000, decimals=1))
         plt.title('Thresholded spike detected on ch {}'.format(ich))
         sns.despine()
         plt.tight_layout()
@@ -188,7 +190,7 @@ def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
         plt.savefig(outfile)
         plt.close()
 
-def check_spikes(bin_file, phys_bandpass=(200,6000) n_waveforms=200):
+def check_spikes(bin_file, phys_bandpass=(200,6000), n_waveforms=200):
     """
     A function to grab thresholded spikes on each channel and overlay spike waveforms to check for signal.
     """
@@ -198,8 +200,8 @@ def check_spikes(bin_file, phys_bandpass=(200,6000) n_waveforms=200):
     sr, data = load_wm(bin_file)
 
     #bandpass
-    print('Bandpassing between {}={} Hz'.format(phys_bandpass[0], phys_bandpass[1]))
-    data_filt = butter_bandpass_filter(data, phys_bandpass[0], phys_bandpass[1], sr)
+    print('Bandpassing between {}-{} Hz'.format(phys_bandpass[0], phys_bandpass[1]))
+    data_filt = butter_bandpass_filter(data, phys_bandpass[0], phys_bandpass[1], sr, axis=1)
     
     #subtract off reference
     print('Computing and subtracting off common reference')
@@ -211,4 +213,4 @@ def check_spikes(bin_file, phys_bandpass=(200,6000) n_waveforms=200):
 
     #save spikes
     print('Saving spike waveforms')
-    save_spikes(data_phys, sr, spikes, n_waveforms=n_waveforms, bin_file)
+    save_spikes(data_phys, sr, spikes, n_waveforms=n_waveforms, bin_file=bin_file)
