@@ -15,3 +15,5 @@ def get_wm_trigger(nidaq_file):
     wm_trigger = data['ephys_trigger'][0]
 
     return wm_trigger
+
+#it might be good to add the get_stimuli functions from wme.audio.util here, since they depend on the nidaq file
