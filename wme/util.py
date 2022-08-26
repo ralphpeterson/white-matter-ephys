@@ -249,6 +249,12 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5):
     bin_file = glob(os.path.join(exp_dir, '*.bin'))[0]
     nidaq_file = glob(os.path.join(exp_dir, '*.h5'))[0]
     stimulus_folder = os.path.join(exp_dir, 'stimuli')
+
+    if np.alltrue([os.path.exists(i) for i in [bin_file, nidaq_file, stimulus_folder]]):
+        pass
+    else:
+        print('Check that bin_file, nidaq_file, and stimnulus_folder exist.')
+        return
     
     #load physiology data
     sr_phys, data_phys = load_wm(bin_file, phys_bandpass=phys_bandpass)
@@ -279,5 +285,4 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5):
 
 def test():
 	return 
-	
 	
