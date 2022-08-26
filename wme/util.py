@@ -5,7 +5,7 @@ import seaborn as sns
 import os
 from glob import glob
 from wme.nidaq.util import get_wm_trigger
-from wme.audio.util import get_sti
+from wme.audio.util import get_stimuli
 
 sns.set_style('white')
 sns.set_style('ticks')
