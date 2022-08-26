@@ -243,7 +243,7 @@ def get_psth_traces(all_spikes, stimulus, data_phys, sr_nidaq=125000, sr_phys=25
         psth_traces.append(np.array([n, bins], dtype=object))
     return psth_traces
 
-def psth_channel(exp_dir, phys_bandpass=(200, 6000)):
+def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5):
     
     #define paths to relevant data
     bin_file = glob(os.path.join(exp_dir, '*.bin'))[0]
@@ -255,7 +255,7 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000)):
 
     #get spikes
     print('Getting spikes')
-    spikes = get_spikes(data_phys, threshold=5)
+    spikes = get_spikes(data_phys, threshold=spike_threshold)
     
     #get stim times
     print('Getting stimulus times')
