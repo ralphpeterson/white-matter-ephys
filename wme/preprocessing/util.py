@@ -1,9 +1,8 @@
 import os
 import numpy as np
-from scipy.signal import butter, sosfilt, sosfreqz
 import shutil
 import io
-from wme.util import load_wm, get_spikes
+from wme.util import load_wm, get_spikes, butter_bandpass_filter, reference
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -71,27 +70,6 @@ def chunk_bin(filename, chunk_size, channel_map):
     
     print('Done')
 
-def butter_bandpass(lowcut, highcut, fs, order=5):
-    """
-    From https://scipy-cookbook.readthedocs.io/items/ButterworthBandpass.html
-
-    Might be a better way to implement here that uses second-order sections: 
-    https://stackoverflow.com/questions/12093594/how-to-implement-band-pass-butterworth-filter-with-scipy-signal-butter
-    """
-    nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    sos = butter(order, [low, high], analog=False, btype='band', output='sos')
-    return sos
-
-def butter_bandpass_filter(data, lowcut, highcut, fs, order=5, axis=1):
-    """
-    From https://scipy-cookbook.readthedocs.io/items/ButterworthBandpass.html
-    """
-    sos = butter_bandpass(lowcut, highcut, fs, order=order)
-    y = sosfilt(sos, data, axis=axis)
-    return y
-
 def preprocess(bin_files, lowcut=200, highcut=6000):
     
     for file in bin_files:
@@ -135,33 +113,11 @@ def merge_bins(bin_files, outfile):
                 shutil.copyfileobj(f, dest, length=io.DEFAULT_BUFFER_SIZE)
     print('Merge file saved to: {}'.format(outfile))
 
-def cmr(data_phys_bandpassed):
-    """
-    Compute the common median reference for an n_channel x n_sample array of ephys data.
-    
-    Returns:
-        Common reference for all channels.
-    """
-    
-    cmr = np.median(data_phys_bandpassed, axis=0)
-    
-    return cmr
-
-def reference(data_phys_bandpassed):
-    """
-    Subtract off the common reference (common median reference) from your bandpasses data.
-    """
-    reference = cmr(data_phys_bandpassed)
-    data_phys = data_phys_bandpassed - reference.reshape((1, -1))
-
-    return data_phys
-
 def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
     """
     Function to save PNGs of spike waveforms detected on different channels.
     """
     for ich in range(data_phys.shape[0]):
-        
         plt.figure()
         all_traces = []
         for ispike in range(1, len(spikes[ich])-1)[:n_waveforms]:
