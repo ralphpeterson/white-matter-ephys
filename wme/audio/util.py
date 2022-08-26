@@ -34,17 +34,18 @@ def get_audio(stimulus_folder):
 	return stimuli, stimulus_names, sr
 
 def get_stimuli(nidaq_file, stimulus_folder):
+
 	"""
 	Creates a dictionary of stim names/times and a list of raw audio for each stimuli.
 	"""
-  #load nidaq file
+  	#load nidaq file
 	data = h5py.File(nidaq_file, 'r')
-  #get the nidaq timestamps for the audio stimuli
+  	#get the nidaq timestamps for the audio stimuli
 	stim_times = data['audio_onset'][:]    
   
-  #get the audio stimuli and their names
+  	#get the audio stimuli and their names
 	stimuli, stimulus_names, sr = get_audio(stimulus_folder)
-  #create a dictionary to store the stim names and times
+  	#create a dictionary to store the stim names and times
 
 	d = {}
 	stim_ttl = np.unique(stim_times[:,1])
