@@ -274,7 +274,7 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5):
         #aggregate all the spikes in a list
         all_spikes = get_stim_spikes(stimuli[istim], d[working_stim_name], spikes, 
                                      get_wm_trigger(nidaq_file),
-                                     pad=1, sr_phys=25000, sr_nidaq=125000)
+                                     pad=1, sr_phys=sr_phys, sr_nidaq=sr_nidaq)
         
         outdir = os.path.join(exp_dir, 'psth_{}'.format(working_stim_name))
         if not os.path.exists(outdir):
