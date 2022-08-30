@@ -130,6 +130,7 @@ def save_spikes(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
         plt.plot(np.mean(np.array(all_traces), axis=0), 'k')
         plt.ylabel('microvolts')
         plt.xlabel('Time (ms)')
+        plt.ylim(-200, 200) #TODO: auto-delete outliers so that the y axis doesn't blow out of proportion
         plt.xticks(np.arange(0, sr*.001*2, sr*.001*2/6),
          np.around(np.arange(0, sr*.001*2, sr*.001*2/6)/sr*1000, decimals=1))
         plt.title('Thresholded spike detected on ch {}'.format(ich))
