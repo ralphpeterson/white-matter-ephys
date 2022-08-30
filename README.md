@@ -6,6 +6,7 @@ Installation instructions:
 ```
 git clone https://github.com/ralphpeterson/white-matter-ephys.git
 cd white-matter-ephys
-conda env create --file environment.yml
+conda env create -f environment.yml
+conda activate wme
 pip install -e .
 ```

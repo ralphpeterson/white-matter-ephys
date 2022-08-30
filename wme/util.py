@@ -307,4 +307,3 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5, pad=1, s
 
 def test():
 	return
-	
