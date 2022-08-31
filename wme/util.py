@@ -228,7 +228,7 @@ def plot_psth_channel(all_spikes, data_phys, stimulus, sr_nidaq=125000,
 		plt.xlim(0, window_size/sr_nidaq*sr_phys)
 		sns.despine()
 		
-		plt.title('Channel {}'.format(i+1))
+		plt.title('Channel {}'.format(i))
 		plt.savefig(os.path.join(outdir, 'channel{}.png'.format(i)), dpi=300, transparent=False)
 		plt.close()
 
