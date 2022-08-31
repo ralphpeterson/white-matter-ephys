@@ -266,14 +266,15 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5, pad=1, s
 	#load physiology data
 	sr_phys, data_phys = load_wm(bin_file, phys_bandpass=phys_bandpass)
 
-	#get spikes
-	spikes_file = glob(os.path.join(exp_dir, '*spikes_th'))
+	#get spikes 
+	spikes_file = glob(exp_dir +'*spikes_th{}.npy'.format(spike_threshold))
+	print(spikes_file)
 	if len(spikes_file) == 0:
 		print('Getting spikes')
 		spikes = get_spikes(data_phys, threshold=spike_threshold, save_spikes=True, outdir=exp_dir)
 	else:
 		print('Loading spikes from {}'.format(spikes_file[0]))
-		spikes = np.load(spikes_file[0])
+		spikes = np.load(spikes_file[0], allow_pickle=True)
 
 	#get stim times
 	print('Getting stimulus times')
