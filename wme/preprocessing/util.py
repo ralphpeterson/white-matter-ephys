@@ -147,7 +147,7 @@ def save_waveforms(data_phys, sr, spikes, n_waveforms=200, bin_file=''):
         plt.savefig(outfile)
         plt.close()
 
-def check_spikes(bin_file, phys_bandpass=(200,6000), n_waveforms=200, spike_threshold=5, save_spikes=True):
+def check_waveforms(bin_file, phys_bandpass=(200,6000), n_waveforms=200, spike_threshold=5, save_spikes=True):
     """
     A function to grab thresholded spikes on each channel and overlay spike waveforms to check for signal.
     """
