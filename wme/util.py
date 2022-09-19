@@ -250,7 +250,7 @@ def get_psth_traces(all_spikes, stimulus, data_phys, sr_nidaq=125000, sr_phys=25
 		psth_traces.append(np.array([n, bins], dtype=object))
 	return psth_traces
 
-def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5, pad=1, save_psth_traces=True):
+def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5, pad=1, save_psth_traces=True, hist_binsize=0.1):
 	
 	#define paths to relevant data
 	bin_file = glob(os.path.join(exp_dir, '*.bin'))[0]
@@ -260,21 +260,26 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5, pad=1, s
 	if np.alltrue([os.path.exists(i) for i in [bin_file, nidaq_file, stimulus_folder]]):
 		pass
 	else:
-		print('Check that bin_file, nidaq_file, and stimnulus_folder exist.')
+		print('Check that bin_file, nidaq_file, and stimulus_folder exist.')
 		return
-	
-	#load physiology data
-	sr_phys, data_phys = load_wm(bin_file, phys_bandpass=phys_bandpass)
+
 
 	#get spikes 
-	spikes_file = glob(exp_dir +'*spikes_th{}.npy'.format(spike_threshold))
+	spikes_file = glob(exp_dir +'/*spikes_th{}.npy'.format(spike_threshold))
 	print(spikes_file)
 	if len(spikes_file) == 0:
+		#load physiology data
+		sr_phys, data_phys = load_wm(bin_file, phys_bandpass=phys_bandpass)
 		print('Getting spikes')
 		spikes = get_spikes(data_phys, threshold=spike_threshold, save_spikes=True, outdir=exp_dir)
 	else:
 		print('Loading spikes from {}'.format(spikes_file[0]))
 		spikes = np.load(spikes_file[0], allow_pickle=True)
+		for ii in range(len(spikes)):
+			spikes[ii]=spikes[ii][:,0]
+		n_channels = int(bin_file.split('_')[-2][:-2])
+		data_phys = np.empty(len(spikes))
+		sr_phys = int(bin_file.split('_')[-1][:-7])
 
 	#get stim times
 	print('Getting stimulus times')
@@ -285,6 +290,7 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5, pad=1, s
 		working_stim_name = list(d.keys())[istim]
 		print('Computing PSTHs for {}'.format(working_stim_name))   
 		#aggregate all the spikes in a list
+
 		all_spikes = get_stim_spikes(stimuli[istim], d[working_stim_name], spikes, 
 									 get_wm_trigger(nidaq_file),
 									 pad=pad, sr_phys=sr_phys, sr_nidaq=sr_nidaq)
@@ -294,14 +300,14 @@ def psth_channel(exp_dir, phys_bandpass=(200, 6000), spike_threshold=5, pad=1, s
 			os.makedirs(outdir)
 			
 		plot_psth_channel(all_spikes, data_phys, stimuli[istim], sr_nidaq=sr_nidaq, 
-						  sr_phys=sr_phys, pad=pad, hist_binsize=0.1, outdir=outdir)
+						  sr_phys=sr_phys, pad=pad, hist_binsize=hist_binsize, outdir=outdir)
 		
 		if save_psth_traces == True:
 			outfile = os.path.join(outdir, 'psth_{}_{}.npy'.format(spike_threshold, working_stim_name))
 			print('Computing and saving PSTH traces to {}'.format(outfile))
 			psth_traces = get_psth_traces(all_spikes, stimuli[istim], data_phys, 
 										  sr_nidaq=sr_nidaq, sr_phys=sr_phys, 
-										  pad=pad, hist_binsize=0.1)
+										  pad=pad, hist_binsize=hist_binsize)
 			np.save(outfile, psth_traces)
 		else:
 			return
