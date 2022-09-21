@@ -10,3 +10,4 @@ conda env create -f environment.yml
 conda activate wme
 pip install -e .
 ```
+windows installation error: solved by 'conda install scipy' within wme environnment
