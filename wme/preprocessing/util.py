@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.signal import resample_poly
 
-def chunk_bin(filename, chunk_size, channel_map, upsample=False): 
+def chunk_bin(filename, chunk_size, channel_map): 
     
     """
     Split .bin file into smaller 'chunk_size' long files.
@@ -57,20 +57,6 @@ def chunk_bin(filename, chunk_size, channel_map, upsample=False):
                 
         print('Reordering channels according to channel map')
         data_chanMap_reorder = data[:, channel_map]
-
-        if upsample==True:
-            up_factor = 4
-            down_factor = 2
-            sr_post = int(sr*up_factor/down_factor)
-            
-            data_upsampled = np.empty([int(data_chanMap_reorder.shape[0]*(up_factor/down_factor)), 64])
-            for ii in range(64):
-                data_ = data_chanMap_reorder[:,ii]
-                # print('upsampling ch {}...'.format(ii))
-                data_upsampled_ = resample_poly(data_, up_factor, down_factor)
-                data_upsampled[:,ii] = data_upsampled_
-            print('upsampling complete')
-            data_chanMap_reorder = data_upsampled
         
         print('Writing binary file')
         data_chanMap_reorder.astype('int16', order='F').tofile(outfile)
