@@ -53,7 +53,12 @@ def chunk_bin(filename, chunk_size, channel_map):
         data = _data.reshape(-1,n_channels)*6.25e3/32768
         
         basedir, fn = os.path.split(filename)
-        outfile = os.path.join(basedir, fn.replace('.bin', '_{}min_chunk{}.bin'.format(chunk_size, i+1)))
+
+        if i+1 < 10:
+            chunk_num = '0{}'.format(i+1)
+        else:
+            chunk_num = i+1
+        outfile = os.path.join(basedir, fn.replace('.bin', '_{}min_chunk{}.bin'.format(chunk_size, chunk_num)))
                 
         print('Reordering channels according to channel map')
         data_chanMap_reorder = data[:, channel_map]
