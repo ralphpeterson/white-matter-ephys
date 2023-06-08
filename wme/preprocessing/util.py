@@ -5,7 +5,6 @@ import io
 from wme.util import load_wm, get_spikes, butter_bandpass_filter, reference
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.signal import resample_poly
 
 def chunk_bin(filename, chunk_size, channel_map): 
     
