@@ -72,12 +72,14 @@ def load_wm(bin_file, phys_bandpass=False):
 	n_channels = int(bin_file.split('_')[-2][:-2])
 
 	print('Loading data')
-	#load in binary data
+	#white matter llc writes their data as signed in16 binary (values +/- 32768)
+	#load in binary data, offset by 8 bytes (file header)
 	_data = np.fromfile(bin_file,'int16', offset=8)
 
-	#reshape data to (n_samples, n_samples) and scale values to MICROVOLTS
+	#reshape data to (n_samples, n_channels) and scale values to MICROVOLTS
+	#note: python converts data type to float here - will convert back in next line.
 	data = _data.reshape(-1,n_channels)*6.25e3/32768
-	data = data.T.astype('int16') #transpose and convert back to int 16
+	data = data.T.astype('int16') #transpose to (n_channels, n_samples) and convert back to int 16
 	
 	#parse filename to get sampling rate
 	sr = int(bin_file.split('_')[-1][:-7])
